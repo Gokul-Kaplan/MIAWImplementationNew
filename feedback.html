@@ -12,74 +12,80 @@
       justify-content: center;
       align-items: center;
       font-family: Arial, sans-serif;
+      font-size: 12px; /* 20% smaller base font */
     }
     .modal {
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.15);
-      padding: 40px 35px 30px 35px;
-      width: 380px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      padding: 20px 16px;
+      width: 240px; /* 20% smaller than 300px */
       text-align: center;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 10px;
     }
     .rating {
-      font-size: 2.3rem;
+      font-size: 1.6rem; /* smaller thumbs */
       display: flex;
       justify-content: center;
-      gap: 35px;
-      margin: 6px 0 11px 0;
+      gap: 18px;
+      margin: 3px 0 5px 0;
     }
     .rating span {
       cursor: pointer;
       transition: transform 0.18s, color 0.2s;
     }
     .rating span:hover {
-      transform: scale(1.2);
+      transform: scale(1.12);
     }
     .rating .selected {
       color: #2196F3;
-      animation: pop 280ms cubic-bezier(.61,1.55,.45,.83) 1;
+      animation: pop 220ms cubic-bezier(.61,1.55,.45,.83) 1;
     }
     @keyframes pop {
       0% { transform: scale(1); }
-      55% { transform: scale(1.38); }
-      80% { transform: scale(0.93); }
+      55% { transform: scale(1.25); }
+      80% { transform: scale(0.96); }
       100% { transform: scale(1); }
     }
-    .feedback-section {
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .feedback-box {
-      width: 100%;
-      min-height: 65px;
-      resize: none;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 8px;
-    }
     select {
-      padding: 6px;
-      font-size: 1rem;
+      padding: 3px;
+      font-size: 0.8rem;
       border-radius: 4px;
       border: 1px solid #ccc;
-      margin-top: 5px;
+      margin-top: 2px;
     }
     select:disabled {
       background-color: #f0f0f0;
       color: #999;
+    }
+    .feedback-section {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      animation: fadeIn 0.4s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .feedback-box {
+      width: 100%;
+      min-height: 45px;
+      resize: none;
+      font-size: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 4px;
     }
     .submit-btn {
       background: #2196F3;
       color: white;
       border: none;
       border-radius: 4px;
-      padding: 8px 28px;
-      font-size: 1rem;
+      padding: 5px 14px;
+      font-size: 0.8rem;
       cursor: pointer;
       transition: background 0.2s;
     }
@@ -87,7 +93,7 @@
       background: #1769aa;
     }
     .confirmation {
-      font-size: 1.2rem;
+      font-size: 0.9rem;
       color: green;
       font-weight: bold;
       display: none;
@@ -96,7 +102,7 @@
 </head>
 <body>
   <div class="modal">
-    <div style="font-size: 1.1rem; margin-bottom:4px;">
+    <div style="font-weight: bold; font-size: 0.9rem; margin-bottom:2px;">
       How would you rate this chat?
     </div>
 
@@ -106,8 +112,8 @@
       <span id="thumbsDown" title="Bad">&#128078;</span>
     </div>
 
-    <!-- Reason dropdown now right below the rating -->
-    <label for="feedbackReason" style="text-align:left; font-size:1rem; font-weight:bold;">
+    <!-- Reason dropdown -->
+    <label for="feedbackReason" style="text-align:left; font-size:0.8rem; font-weight:bold;">
       Reason for your rating:
     </label>
     <select id="feedbackReason" disabled>
@@ -122,9 +128,9 @@
       <option>Issue unresolved</option>
     </select>
 
-    <!-- Feedback section -->
+    <!-- Feedback textarea + submit -->
     <div class="feedback-section" id="feedbackSection">
-      <div style="font-size:1.08rem;">Feel free to leave us any additional feedback below:</div>
+      <div style="font-size:0.8rem;">Additional feedback (optional):</div>
       <textarea class="feedback-box" placeholder="Your feedback..."></textarea>
       <button class="submit-btn" id="submitBtn">Submit</button>
     </div>
@@ -138,9 +144,9 @@
   <script>
     const thumbsUp = document.getElementById("thumbsUp");
     const thumbsDown = document.getElementById("thumbsDown");
+    const feedbackReason = document.getElementById("feedbackReason");
     const feedbackSection = document.getElementById("feedbackSection");
     const feedbackBox = document.querySelector(".feedback-box");
-    const feedbackReason = document.getElementById("feedbackReason");
     const confirmationMessage = document.getElementById("confirmationMessage");
     let selected = null;
 
@@ -150,31 +156,19 @@
       elem.classList.add("selected");
     }
 
-    function showFeedback() {
-      feedbackSection.style.display = "flex";
-    }
-
-    feedbackReason.addEventListener("change", () => {
-      localStorage.setItem("chatFeedbackReason", feedbackReason.value);
-    });
-
-    feedbackBox.addEventListener("input", () => {
-      localStorage.setItem("chatFeedback", feedbackBox.value);
-    });
-
     thumbsUp.addEventListener("click", () => {
       if (selected === "up") {
         thumbsUp.classList.remove("selected");
         selected = null;
-        feedbackSection.style.display = "none";
         feedbackReason.disabled = true;
         feedbackReason.value = "";
+        feedbackSection.style.display = "none";
       } else {
         triggerPop(thumbsUp);
         thumbsDown.classList.remove("selected");
         selected = "up";
         feedbackReason.disabled = false;
-        showFeedback();
+        checkShowFeedback();
       }
     });
 
@@ -182,24 +176,39 @@
       if (selected === "down") {
         thumbsDown.classList.remove("selected");
         selected = null;
-        feedbackSection.style.display = "none";
         feedbackReason.disabled = true;
         feedbackReason.value = "";
+        feedbackSection.style.display = "none";
       } else {
         triggerPop(thumbsDown);
         thumbsUp.classList.remove("selected");
         selected = "down";
         feedbackReason.disabled = false;
-        showFeedback();
+        checkShowFeedback();
       }
     });
+
+    feedbackReason.addEventListener("change", () => {
+      checkShowFeedback();
+    });
+
+    function checkShowFeedback() {
+      if (selected && feedbackReason.value) {
+        feedbackSection.style.display = "flex";
+      } else {
+        feedbackSection.style.display = "none";
+      }
+    }
 
     document.getElementById("submitBtn").addEventListener("click", () => {
       if (!selected) {
         alert("Please give a thumbs up or thumbs down before submitting.");
         return;
       }
-      localStorage.setItem("chatRating", selected);
+      if (!feedbackReason.value) {
+        alert("Please select a reason for your rating.");
+        return;
+      }
       confirmationMessage.style.display = "block";
       feedbackSection.style.display = "none";
       feedbackReason.disabled = true;
@@ -207,7 +216,6 @@
 
     // Always start fresh
     window.addEventListener("DOMContentLoaded", () => {
-      localStorage.clear();
       feedbackReason.value = "";
       feedbackBox.value = "";
       feedbackReason.disabled = true;
