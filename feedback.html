@@ -1,225 +1,327 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Chat Feedback Modal</title>
-  <style>
-    body {
-      background: #888;
-      height: 100vh;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      font-size: 12px; /* 20% smaller base font */
-    }
-    .modal {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-      padding: 20px 16px;
-      width: 240px; /* 20% smaller than 300px */
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .rating {
-      font-size: 1.6rem; /* smaller thumbs */
-      display: flex;
-      justify-content: center;
-      gap: 18px;
-      margin: 3px 0 5px 0;
-    }
-    .rating span {
-      cursor: pointer;
-      transition: transform 0.18s, color 0.2s;
-    }
-    .rating span:hover {
-      transform: scale(1.12);
-    }
-    .rating .selected {
-      color: #2196F3;
-      animation: pop 220ms cubic-bezier(.61,1.55,.45,.83) 1;
-    }
-    @keyframes pop {
-      0% { transform: scale(1); }
-      55% { transform: scale(1.25); }
-      80% { transform: scale(0.96); }
-      100% { transform: scale(1); }
-    }
-    select {
-      padding: 3px;
-      font-size: 0.8rem;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      margin-top: 2px;
-    }
-    select:disabled {
-      background-color: #f0f0f0;
-      color: #999;
-    }
-    .feedback-section {
-      display: none;
-      flex-direction: column;
-      gap: 6px;
-      animation: fadeIn 0.4s ease forwards;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-4px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .feedback-box {
-      width: 100%;
-      min-height: 45px;
-      resize: none;
-      font-size: 0.8rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 4px;
-    }
-    .submit-btn {
-      background: #2196F3;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 5px 14px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .submit-btn:hover {
-      background: #1769aa;
-    }
-    .confirmation {
-      font-size: 0.9rem;
-      color: green;
-      font-weight: bold;
-      display: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Chat Feedback Modal</title>
+<style>
+  body {
+    background: #888;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+  }
+  .modal {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    padding: 20px 16px;
+    width: 260px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 240px;
+    justify-content: flex-start;
+  }
+  .rating {
+    font-size: 1.6rem;
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin: 3px 0 5px 0;
+  }
+  .rating span {
+    cursor: pointer;
+    transition: transform 0.18s, color 0.2s, opacity 0.2s, font-size 0.25s ease;
+    user-select: none;
+  }
+  .rating .selected {
+    color: #2196F3;
+    font-weight: bold;
+    animation: pop 220ms cubic-bezier(.61,1.55,.45,.83) 1;
+  }
+  .rating .faded {
+    color: #bbb;
+    opacity: 0.5;
+  }
+  .rating .highlight-final {
+    font-size: 2rem;
+    transform: scale(1.2);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    55% { transform: scale(1.25); }
+    80% { transform: scale(0.96); }
+    100% { transform: scale(1); }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1.2); }
+    50% { transform: scale(1.35); }
+  }
+  select, textarea {
+    padding: 3px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-top: 2px;
+  }
+  select:disabled, textarea:disabled {
+    background-color: #f0f0f0;
+    color: #555;
+    cursor: not-allowed;
+  }
+  .feedback-section {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    animation: fadeIn 0.4s ease forwards;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .feedback-box {
+    width: 100%;
+    min-height: 45px;
+    resize: none;
+    font-size: 0.8rem;
+  }
+  .submit-btn {
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 14px;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  .submit-btn:hover {
+    background: #1769aa;
+  }
+  .confirmation {
+    font-size: 0.9rem;
+    color: green;
+    font-weight: bold;
+    display: none;
+    opacity: 0;
+    animation: fadeInConfirm 0.5s ease forwards;
+  }
+  @keyframes fadeInConfirm {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .form-content {
+    transition: opacity 0.4s ease;
+  }
+  .form-hidden {
+    opacity: 0;
+    pointer-events: none;
+    height: 0;
+  }
+  .center-mode {
+    justify-content: flex-start !important;
+    gap: 10px;
+  }
+  .summary-box {
+    font-size: 0.8rem;
+    padding: 8px;
+    border-radius: 4px;
+    text-align: left;
+    margin-top: 5px;
+    display: none;
+  }
+  .summary-good {
+    background: #e8f7ec;
+    border: 1px solid #57b26a;
+    color: #276738;
+  }
+  .summary-bad {
+    background: #fdeaea;
+    border: 1px solid #d9534f;
+    color: #7a1f1c;
+  }
+  .summary-box strong {
+    display: inline-block;
+    min-width: 55px;
+  }
+  .summary-icon {
+    margin-right: 5px;
+    font-size: 1rem;
+  }
+  /* preserve formatting for feedback */
+  #summaryFeedback {
+    white-space: pre-wrap;
+  }
+</style>
 </head>
 <body>
-  <div class="modal">
-    <div style="font-weight: bold; font-size: 0.9rem; margin-bottom:2px;">
-      How would you rate this chat?
-    </div>
+<div class="modal" id="modalBox">
 
-    <!-- Thumbs -->
-    <div class="rating">
-      <span id="thumbsUp" title="Good">&#128077;</span>
-      <span id="thumbsDown" title="Bad">&#128078;</span>
-    </div>
+  <!-- Thumbs -->
+  <div class="rating">
+    <span id="thumbsUp" title="Good">&#128077;</span>
+    <span id="thumbsDown" title="Bad">&#128078;</span>
+  </div>
 
-    <!-- Reason dropdown -->
+  <!-- Form -->
+  <div class="form-content" id="formContent">
     <label for="feedbackReason" style="text-align:left; font-size:0.8rem; font-weight:bold;">
       Reason for your rating:
     </label>
     <select id="feedbackReason" disabled>
       <option value="">-- Select a reason --</option>
-      <option>Long wait time</option>
-      <option>No response from agent</option>
+      <option>Long Wait Time</option>
+      <option>No Response from Agent</option>
       <option>My question was not answered</option>
       <option>Agent was unhelpful</option>
       <option>Agent ended chat prematurely</option>
       <option>Had to repeat my issue</option>
-      <option>Poor communication</option>
+      <option>Poor Communication</option>
       <option>Issue unresolved</option>
     </select>
 
-    <!-- Feedback textarea + submit -->
     <div class="feedback-section" id="feedbackSection">
       <div style="font-size:0.8rem;">Additional feedback (optional):</div>
       <textarea class="feedback-box" placeholder="Your feedback..."></textarea>
       <button class="submit-btn" id="submitBtn">Submit</button>
     </div>
-
-    <!-- Confirmation -->
-    <div class="confirmation" id="confirmationMessage">
-      ✅ Thank you! Your feedback has been submitted.
-    </div>
   </div>
 
-  <script>
-    const thumbsUp = document.getElementById("thumbsUp");
-    const thumbsDown = document.getElementById("thumbsDown");
-    const feedbackReason = document.getElementById("feedbackReason");
-    const feedbackSection = document.getElementById("feedbackSection");
-    const feedbackBox = document.querySelector(".feedback-box");
-    const confirmationMessage = document.getElementById("confirmationMessage");
-    let selected = null;
+  <!-- Summary -->
+  <div class="summary-box" id="summaryBox">
+    <div><span class="summary-icon" id="summaryIcon"></span><strong>Reason:</strong> <span id="summaryReason"></span></div>
+    <div style="margin-top:4px;"><strong>Feedback:</strong> <span id="summaryFeedback"></span></div>
+  </div>
 
-    function triggerPop(elem) {
-      elem.classList.remove("selected");
-      void elem.offsetWidth;
-      elem.classList.add("selected");
-    }
+  <!-- Confirmation -->
+  <div class="confirmation" id="confirmationMessage">
+    ✅ Thank you! Your feedback has been submitted.
+  </div>
+</div>
 
-    thumbsUp.addEventListener("click", () => {
-      if (selected === "up") {
-        thumbsUp.classList.remove("selected");
-        selected = null;
-        feedbackReason.disabled = true;
-        feedbackReason.value = "";
-        feedbackSection.style.display = "none";
-      } else {
-        triggerPop(thumbsUp);
-        thumbsDown.classList.remove("selected");
-        selected = "up";
-        feedbackReason.disabled = false;
-        checkShowFeedback();
-      }
-    });
+<script>
+const thumbsUp = document.getElementById("thumbsUp");
+const thumbsDown = document.getElementById("thumbsDown");
+const feedbackReason = document.getElementById("feedbackReason");
+const feedbackSection = document.getElementById("feedbackSection");
+const feedbackBox = document.querySelector(".feedback-box");
+const formContent = document.getElementById("formContent");
+const summaryBox = document.getElementById("summaryBox");
+const summaryReason = document.getElementById("summaryReason");
+const summaryFeedback = document.getElementById("summaryFeedback");
+const summaryIcon = document.getElementById("summaryIcon");
+const confirmationMessage = document.getElementById("confirmationMessage");
+const modalBox = document.getElementById("modalBox");
 
-    thumbsDown.addEventListener("click", () => {
-      if (selected === "down") {
-        thumbsDown.classList.remove("selected");
-        selected = null;
-        feedbackReason.disabled = true;
-        feedbackReason.value = "";
-        feedbackSection.style.display = "none";
-      } else {
-        triggerPop(thumbsDown);
-        thumbsUp.classList.remove("selected");
-        selected = "down";
-        feedbackReason.disabled = false;
-        checkShowFeedback();
-      }
-    });
+let selected = null;
+let submitted = false;
 
-    feedbackReason.addEventListener("change", () => {
-      checkShowFeedback();
-    });
+function triggerPop(elem) {
+  elem.classList.remove("selected");
+  void elem.offsetWidth;
+  elem.classList.add("selected");
+}
 
-    function checkShowFeedback() {
-      if (selected && feedbackReason.value) {
-        feedbackSection.style.display = "flex";
-      } else {
-        feedbackSection.style.display = "none";
-      }
-    }
+thumbsUp.addEventListener("click", () => {
+  if (submitted) return;
+  if (selected === "up") {
+    thumbsUp.classList.remove("selected");
+    selected = null;
+    feedbackReason.disabled = true;
+    feedbackReason.value = "";
+    feedbackSection.style.display = "none";
+  } else {
+    triggerPop(thumbsUp);
+    thumbsDown.classList.remove("selected", "faded", "highlight-final");
+    selected = "up";
+    feedbackReason.disabled = false;
+    checkShowFeedback();
+  }
+});
 
-    document.getElementById("submitBtn").addEventListener("click", () => {
-      if (!selected) {
-        alert("Please give a thumbs up or thumbs down before submitting.");
-        return;
-      }
-      if (!feedbackReason.value) {
-        alert("Please select a reason for your rating.");
-        return;
-      }
-      confirmationMessage.style.display = "block";
-      feedbackSection.style.display = "none";
-      feedbackReason.disabled = true;
-    });
+thumbsDown.addEventListener("click", () => {
+  if (submitted) return;
+  if (selected === "down") {
+    thumbsDown.classList.remove("selected");
+    selected = null;
+    feedbackReason.disabled = true;
+    feedbackReason.value = "";
+    feedbackSection.style.display = "none";
+  } else {
+    triggerPop(thumbsDown);
+    thumbsUp.classList.remove("selected", "faded", "highlight-final");
+    selected = "down";
+    feedbackReason.disabled = false;
+    checkShowFeedback();
+  }
+});
 
-    // Always start fresh
-    window.addEventListener("DOMContentLoaded", () => {
-      feedbackReason.value = "";
-      feedbackBox.value = "";
-      feedbackReason.disabled = true;
-    });
-  </script>
+feedbackReason.addEventListener("change", () => {
+  if (submitted) return;
+  checkShowFeedback();
+});
+
+function checkShowFeedback() {
+  if (selected && feedbackReason.value) {
+    feedbackSection.style.display = "flex";
+  } else {
+    feedbackSection.style.display = "none";
+  }
+}
+
+document.getElementById("submitBtn").addEventListener("click", () => {
+  if (!selected) {
+    alert("Please give a thumbs up or thumbs down before submitting.");
+    return;
+  }
+  if (!feedbackReason.value) {
+    alert("Please select a reason for your rating.");
+    return;
+  }
+
+  submitted = true;
+  feedbackReason.disabled = true;
+  feedbackBox.disabled = true;
+  thumbsUp.style.cursor = "default";
+  thumbsDown.style.cursor = "default";
+
+  if (selected === "up") {
+    thumbsUp.classList.add("highlight-final");
+    thumbsDown.classList.add("faded");
+    summaryBox.classList.add("summary-good");
+    summaryIcon.textContent = "✅";
+  } else {
+    thumbsDown.classList.add("highlight-final");
+    thumbsUp.classList.add("faded");
+    summaryBox.classList.add("summary-bad");
+    summaryIcon.textContent = "⚠️";
+  }
+
+  summaryReason.textContent = feedbackReason.value;
+
+  // Preserve formatting for multi-line text
+  summaryFeedback.textContent = feedbackBox.value || "(No additional feedback)";
+
+  summaryBox.style.display = "block";
+  formContent.classList.add("form-hidden");
+
+  setTimeout(() => {
+    modalBox.classList.add("center-mode");
+    confirmationMessage.style.display = "block";
+    confirmationMessage.style.opacity = "1";
+  }, 400);
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  feedbackReason.value = "";
+  feedbackBox.value = "";
+  feedbackReason.disabled = true;
+});
+</script>
 </body>
 </html>
