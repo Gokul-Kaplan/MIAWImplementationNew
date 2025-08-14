@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat Feedback Modal</title>
+  <style>
+    body {
+      background: #888;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+      padding: 40px 35px 30px 35px;
+      width: 380px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .rating {
+      font-size: 2.3rem;
+      display: flex;
+      justify-content: center;
+      gap: 35px;
+      margin: 6px 0 11px 0;
+    }
+    .rating span {
+      cursor: pointer;
+      transition: transform 0.18s, color 0.2s;
+    }
+    .rating span:hover {
+      transform: scale(1.2);
+    }
+    .rating .selected {
+      color: #2196F3;
+      animation: pop 280ms cubic-bezier(.61,1.55,.45,.83) 1;
+    }
+    @keyframes pop {
+      0% { transform: scale(1); }
+      55% { transform: scale(1.38); }
+      80% { transform: scale(0.93); }
+      100% { transform: scale(1); }
+    }
+    .feedback-section {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .feedback-box {
+      width: 100%;
+      min-height: 65px;
+      resize: none;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 8px;
+    }
+    select {
+      padding: 6px;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+    }
+    select:disabled {
+      background-color: #f0f0f0;
+      color: #999;
+    }
+    .submit-btn {
+      background: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 28px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .submit-btn:hover {
+      background: #1769aa;
+    }
+    .confirmation {
+      font-size: 1.2rem;
+      color: green;
+      font-weight: bold;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="modal">
+    <div style="font-size: 1.1rem; margin-bottom:4px;">
+      How would you rate this chat?
+    </div>
+
+    <!-- Thumbs -->
+    <div class="rating">
+      <span id="thumbsUp" title="Good">&#128077;</span>
+      <span id="thumbsDown" title="Bad">&#128078;</span>
+    </div>
+
+    <!-- Reason dropdown now right below the rating -->
+    <label for="feedbackReason" style="text-align:left; font-size:1rem; font-weight:bold;">
+      Reason for your rating:
+    </label>
+    <select id="feedbackReason" disabled>
+      <option value="">-- Select a reason --</option>
+      <option>Long wait time</option>
+      <option>No response from agent</option>
+      <option>My question was not answered</option>
+      <option>Agent was unhelpful</option>
+      <option>Agent ended chat prematurely</option>
+      <option>Had to repeat my issue</option>
+      <option>Poor communication</option>
+      <option>Issue unresolved</option>
+    </select>
+
+    <!-- Feedback section -->
+    <div class="feedback-section" id="feedbackSection">
+      <div style="font-size:1.08rem;">Feel free to leave us any additional feedback below:</div>
+      <textarea class="feedback-box" placeholder="Your feedback..."></textarea>
+      <button class="submit-btn" id="submitBtn">Submit</button>
+    </div>
+
+    <!-- Confirmation -->
+    <div class="confirmation" id="confirmationMessage">
+      ✅ Thank you! Your feedback has been submitted.
+    </div>
+  </div>
+
+  <script>
+    const thumbsUp = document.getElementById("thumbsUp");
+    const thumbsDown = document.getElementById("thumbsDown");
+    const feedbackSection = document.getElementById("feedbackSection");
+    const feedbackBox = document.querySelector(".feedback-box");
+    const feedbackReason = document.getElementById("feedbackReason");
+    const confirmationMessage = document.getElementById("confirmationMessage");
+    let selected = null;
+
+    function triggerPop(elem) {
+      elem.classList.remove("selected");
+      void elem.offsetWidth;
+      elem.classList.add("selected");
+    }
+
+    function showFeedback() {
+      feedbackSection.style.display = "flex";
+    }
+
+    feedbackReason.addEventListener("change", () => {
+      localStorage.setItem("chatFeedbackReason", feedbackReason.value);
+    });
+
+    feedbackBox.addEventListener("input", () => {
+      localStorage.setItem("chatFeedback", feedbackBox.value);
+    });
+
+    thumbsUp.addEventListener("click", () => {
+      if (selected === "up") {
+        thumbsUp.classList.remove("selected");
+        selected = null;
+        feedbackSection.style.display = "none";
+        feedbackReason.disabled = true;
+        feedbackReason.value = "";
+      } else {
+        triggerPop(thumbsUp);
+        thumbsDown.classList.remove("selected");
+        selected = "up";
+        feedbackReason.disabled = false;
+        showFeedback();
+      }
+    });
+
+    thumbsDown.addEventListener("click", () => {
+      if (selected === "down") {
+        thumbsDown.classList.remove("selected");
+        selected = null;
+        feedbackSection.style.display = "none";
+        feedbackReason.disabled = true;
+        feedbackReason.value = "";
+      } else {
+        triggerPop(thumbsDown);
+        thumbsUp.classList.remove("selected");
+        selected = "down";
+        feedbackReason.disabled = false;
+        showFeedback();
+      }
+    });
+
+    document.getElementById("submitBtn").addEventListener("click", () => {
+      if (!selected) {
+        alert("Please give a thumbs up or thumbs down before submitting.");
+        return;
+      }
+      localStorage.setItem("chatRating", selected);
+      confirmationMessage.style.display = "block";
+      feedbackSection.style.display = "none";
+      feedbackReason.disabled = true;
+    });
+
+    // Always start fresh
+    window.addEventListener("DOMContentLoaded", () => {
+      localStorage.clear();
+      feedbackReason.value = "";
+      feedbackBox.value = "";
+      feedbackReason.disabled = true;
+    });
+  </script>
+</body>
+</html>
