@@ -322,6 +322,18 @@ window.addEventListener("DOMContentLoaded", () => {
   feedbackBox.value = "";
   feedbackReason.disabled = true;
 });
+
+  // Get the query string from the current page URL
+const queryString = window.location.search;
+ 
+// Parse the query string
+const urlParams = new URLSearchParams(queryString);
+ 
+// Get the value of the "recordid" parameter
+const recordId = urlParams.get("recordid");
+ 
+// Display it in the console
+console.log("Record ID:", recordId);
 </script>
 </body>
 </html>
